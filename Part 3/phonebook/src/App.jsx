@@ -36,8 +36,8 @@ const App = () => {
     } else {
       personService.create(person)
         .then(newPerson => setPersons(persons.concat(newPerson)))
-        .then(transientNotify(`Added ${newName}`, "green", 2))
-        .catch(error => transientNotify(`${Object.keys(error)}`, "red", "2"))
+        .then(newPerson => transientNotify(`Added ${newPerson.name}`, "green", 2))
+        .catch(error => {transientNotify(`${error.response.data}`, "red", 2)})
     }
     setNewName('')
     setNewNumber('')
@@ -55,9 +55,7 @@ const App = () => {
     const person = persons.find(p => p.id === id)
     if(window.confirm(`Delete ${person.name}?`)) {
       personService.remove(id)
-        .catch(error => 
-          transientNotify(`Information of ${person.name} has already been removed from server`, "red", 2)
-        )
+        .catch(transientNotify(`Information of ${person.name} has already been removed from server`, "red", 2))
       const newPersons = persons.filter(person => person.id != id)
       setPersons(newPersons)
     }
@@ -67,6 +65,7 @@ const App = () => {
     const updatedPerson = {...person, number: newNumber}
     personService.update(person.id, updatedPerson)
       .then(returnedPerson => setPersons(persons.map(p => p.id === person.id ? returnedPerson : p)))
+      .catch(error => transientNotify(`${error.response.data}`, "red", 2))
   }
 
   const handleNameChange = e => setNewName(e.target.value)
@@ -75,7 +74,7 @@ const App = () => {
 
   return (
     <div>
-      <h1>Phonebook</h1>
+      <h1>Phonebook v2</h1>
       <Notification message={notificationMessage} color={notificationColor}/>
       <Filter label = "Filter by name: " state = {query} onChange={handleQueryChange} />
       <h2>Add a new</h2>
